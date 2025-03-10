@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Calculator</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      direction: ltr;
+    }
+    .container {
+      background-color: #ffffff;
+      padding: 24px;
+      margin: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+    h2 {
+      color: #333333;
+      margin-bottom: 20px;
+    }
+    .operation-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .operation-option {
+      background-color: #e9ecef;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      border: 1px solid #d1d1d1;
+      transition: background-color 0.3s;
+      font-size: 14px;
+    }
+    .operation-option input {
+      margin-right: 8px;
+    }
+    .operation-option:hover {
+      background-color: #dfe4e8;
+    }
+    input[type="number"] {
+      width: 92%;
+      padding: 12px;
+      font-size: 15px;
+      border: 1px solid #cccccc;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      background-color: #fafafa;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: #444444;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      margin-top: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #333333;
+    }
+    .result {
+      margin-top: 25px;
+      padding: 14px;
+      background-color: #f0f0f0;
+      color: #333333;
+      font-size: 18px;
+      text-align: center;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <a href="extras-calculator-En.html"><button>Go to Extras Calculator</button></a>
+    <h2>Tax Calculator</h2>
+
+    <label for="amount">Enter amount:</label>
+    <input type="number" id="amount">
+
+    <label>Select operation:</label>
+    <div class="operation-options">
+      <label class="operation-option"><input type="radio" name="operation" value="115" checked> Remove 15% Tax</label>
+      <label class="operation-option"><input type="radio" name="operation" value="both"> Remove 15% & 5% Tax</label>
+      <label class="operation-option"><input type="radio" name="operation" value="add15"> Add 15% Tax</label>
+      <label class="operation-option"><input type="radio" name="operation" value="addBoth"> Add 15% & 5% Tax</label>
+    </div>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div class="result" id="result">-</div>
+    <div class="note" id="note"></div>
+  </div>
+
+  <script>
+    function formatNumber(num) {
+    if (num % 1 === 0) {
+        return num.toFixed(0); // إذا كان الرقم صحيحًا، أعده بدون فاصلة عشرية
+    }
+
+    let fixedNum = num.toFixed(6); // تحويل الرقم إلى 6 أرقام بعد الفاصلة
+
+    // التحقق مما إذا كان الرقم ينتهي بأي من العشرات (10, 20, ..., 90)
+    let decimalPart = fixedNum.split(".")[1]; // استخراج الجزء العشري
+    if (decimalPart && decimalPart.length >= 2) {
+        let lastTwoDigits = decimalPart.slice(0, 2); // أخذ أول رقمين بعد الفاصلة
+        if (["10", "20", "30", "40", "50", "60", "70", "80", "90"].includes(lastTwoDigits)) {
+            return num.toFixed(2); // احتفظ برقمين بعد الفاصلة إذا كان من العشرات
+        }
+    }
+
+    // إزالة الأصفار الزائدة من النهاية
+    while (fixedNum.endsWith("0")) {
+        fixedNum = fixedNum.slice(0, -1);
+    }
+
+    return fixedNum; // إرجاع الرقم بعد حذف الأصفار الزائدة
+}
+
+    function calculate() {
+      var amount = parseFloat(document.getElementById('amount').value);
+      var operation = document.querySelector('input[name="operation"]:checked').value;
+      var result, tax15, tax5;
+
+      if (!amount) {
+        alert("Please enter a valid amount.");
+        return;
+      }
+
+      if (operation === "115") {
+        result = (amount / 115) * 100;
+        tax15 = amount - result;
+        document.getElementById('note').innerText = "15% Tax = " + formatNumber(tax15) + " SAR";
+      } else if (operation === "both") {
+        result = (amount / 115) * 100;
+        tax15 = amount - result;
+        result = (result / 105) * 100;
+        tax5 = amount - tax15 - result;
+        document.getElementById('note').innerText = "15% Tax = " + formatNumber(tax15) + " SAR, \n5% Tax = " + formatNumber(tax5) + " SAR";
+      } else if (operation === "add15") {
+        tax15 = amount * 0.15;
+        result = amount + tax15;
+        document.getElementById('note').innerText = "15% Tax = " + formatNumber(tax15) + " SAR";
+      } else if (operation === "addBoth") {
+        tax15 = amount * 0.15;
+        result = amount + tax15;
+        tax5 = result * 0.05;
+        result = result + tax5;
+        document.getElementById('note').innerText = "15% Tax = " + formatNumber(tax15) + " SAR, \n5% Tax = " + formatNumber(tax5) + " SAR";
+      }
+
+      document.getElementById('result').innerText = formatNumber(result) + " SAR";
+    }
+  </script>
+
+</body>
+</html>
